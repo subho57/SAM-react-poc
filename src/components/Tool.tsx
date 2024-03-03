@@ -15,8 +15,8 @@ interface BoundingBox {
 }
 
 const Tool = ({ handleMouseClick }: ToolProps) => {
-  const { cv } = useOpenCv();
-  console.log(cv, "opencv");
+  const { loaded: cvLoaded, cv } = useOpenCv();
+
   const {
     image: [image],
     maskImg: [maskImg, setMaskImg],
@@ -30,12 +30,17 @@ const Tool = ({ handleMouseClick }: ToolProps) => {
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
 
   useEffect(() => {
-    const img = new Image();
-    img.src = "/assets/data/newfinal.jpg";
-    img.onload = () => {
-      setImageSize({ width: img.width, height: img.height });
-    };
-  }, []);
+    if (cvLoaded && cv) {
+      console.log("LOADED OPENCV");
+      const img = new Image();
+      img.onload = () => {
+        setImageSize({ width: img.width, height: img.height });
+        const mat = cv.imread(img);
+        console.log("mat", mat);
+      };
+      img.src = "/assets/data/newfinal.jpg";
+    }
+  }, [cvLoaded]);
 
   const renderBoundingBox = () => {
     if (!maskImg) return null; // If mask image is not available, return null
